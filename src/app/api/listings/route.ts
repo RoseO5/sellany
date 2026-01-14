@@ -1,29 +1,10 @@
 import { NextRequest } from 'next/server';
-import mongoose from 'mongoose';
-
-// Simple in-file model (no separate file needed yet)
-const ListingSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  type: { type: String, enum: ['good', 'service'], required: true },
-  category: { type: String, required: true },
-  price: { type: Number, required: true },
-  seller: { type: mongoose.Schema.Types.ObjectId, default: '660000000000000000000000' },
-  isPublished: { type: Boolean, default: true },
-  // Goods
-  condition: String,
-  size: String,
-  color: String,
-  // Services
-  duration: Number,
-  locationType: String,
-}, { timestamps: true });
-
-const Listing = mongoose.models.Listing || mongoose.model('Listing', ListingSchema);
+import { connectToDB } from '@/lib/mongodb';
+import Listing from '@/models/Listing';
 
 export async function POST(request: NextRequest) {
   try {
-    await mongoose.connect(process.env.MONGODB_URI!);
+    await connectToDB();
 
     const body = await request.json();
     const {
@@ -56,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     await listing.save();
 
-    return Response.json({ success: true, id: listing._id });
+    return Response.json({ success: true, id: listing._id.toString() });
   } catch (error: any) {
     console.error('Save listing error:', error);
     return new Response(JSON.stringify({ error: error.message || 'Failed to save listing' }), { status: 500 });

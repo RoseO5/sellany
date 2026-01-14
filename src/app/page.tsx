@@ -1,41 +1,60 @@
-export default function HomePage() {
+// src/app/page.tsx
+import { connectToDB } from '@/lib/mongodb';
+import Listing from '@/models/Listing'; // We'll create this properly now
+
+export default async function HomePage() {
+  await connectToDB();
+  const listings = await Listing.find({ isPublished: true }).sort({ createdAt: -1 });
+
   return (
-    <div className="min-h-screen bg-white">
-      <header className="bg-gray-900 text-white py-6">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl font-bold">SellAny</h1>
-          <p className="mt-2">Sell goods & services — shoes, bags, human hair, clothes, baking, painting & more!</p>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">SellAny</h1>
+          <a
+            href="/listings/create"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            ➕ Sell Now
+          </a>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold">Welcome to Your Marketplace</h2>
-          <p className="mt-2 text-gray-600">Buy and sell anything — from fashion to freelance services.</p>
-        </div>
+        <h2 className="text-xl font-semibold mb-6">Latest Listings</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          <a
-            href="/listings/create"
-            className="block p-6 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition"
-          >
-            <h3 className="text-xl font-medium text-blue-800">➕ Sell a Product or Service</h3>
-            <p className="mt-2 text-gray-700">List shoes, bags, human hair, clothes, or offer services like baking & painting.</p>
-          </a>
-
-          <a
-            href="/api/test"
-            className="block p-6 bg-green-50 rounded-lg border border-green-200 hover:bg-green-100 transition"
-          >
-            <h3 className="text-xl font-medium text-green-800">🧪 Test: Save Sample Listing</h3>
-            <p className="mt-2 text-gray-700">Click to save a test human hair listing to MongoDB (for dev only).</p>
-          </a>
-        </div>
+        {listings.length === 0 ? (
+          <p className="text-gray-500 text-center py-10">No listings yet. Be the first to sell!</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map((listing) => (
+              <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm">
+                <div className="h-40 bg-gray-200 rounded mb-3 flex items-center justify-center">
+                  <span className="text-gray-500">📸 No image</span>
+                </div>
+                <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
+                  {listing.type === 'good' ? 'Product' : 'Service'}
+                </span>
+                <h3 className="font-medium text-gray-900">{listing.title}</h3>
+                <p className="text-gray-600 text-sm mt-1 line-clamp-2">{listing.description}</p>
+                <p className="mt-3">
+                  <span className="font-bold text-lg">₦{listing.price.toFixed(2)}</span>
+                  {listing.type === 'good' && listing.size && (
+                    <span className="text-gray-500 text-sm ml-2">• {listing.size}</span>
+                  )}
+                </p>
+                <button className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200">
+                  View Details
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
 
-      <footer className="bg-gray-100 py-6 mt-12">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          © {new Date().getFullYear()} SellAny — Built with Next.js & MongoDB
+      <footer className="bg-white border-t py-6 mt-12">
+        <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
+          © {new Date().getFullYear()} SellAny — Nigerian Marketplace for Goods & Services
         </div>
       </footer>
     </div>
