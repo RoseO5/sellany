@@ -1,6 +1,6 @@
 // src/app/page.tsx
 import { connectToDB } from '@/lib/mongodb';
-import Listing from '@/models/Listing'; // We'll create this properly now
+import Listing from '@/models/Listing';
 
 export default async function HomePage() {
   await connectToDB();
@@ -13,7 +13,7 @@ export default async function HomePage() {
           <h1 className="text-2xl font-bold text-gray-900">SellAny</h1>
           <a
             href="/listings/create"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
             ➕ Sell Now
           </a>
@@ -26,24 +26,43 @@ export default async function HomePage() {
         {listings.length === 0 ? (
           <p className="text-gray-500 text-center py-10">No listings yet. Be the first to sell!</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
-              <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm">
-                <div className="h-40 bg-gray-200 rounded mb-3 flex items-center justify-center">
-                  <span className="text-gray-500">📸 No image</span>
-                </div>
+              <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition">
+                {/* Image */}
+                {listing.images && listing.images[0] ? (
+                  <img
+                    src={listing.images[0]}
+                    alt={listing.title}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 rounded mb-3 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">📸 No image</span>
+                  </div>
+                )}
+
+                {/* Type badge */}
                 <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
                   {listing.type === 'good' ? 'Product' : 'Service'}
                 </span>
-                <h3 className="font-medium text-gray-900">{listing.title}</h3>
+
+                {/* Title */}
+                <h3 className="font-medium text-gray-900 line-clamp-1">{listing.title}</h3>
+
+                {/* Description */}
                 <p className="text-gray-600 text-sm mt-1 line-clamp-2">{listing.description}</p>
-                <p className="mt-3">
+
+                {/* Price & Details */}
+                <div className="mt-3 flex justify-between items-center">
                   <span className="font-bold text-lg">₦{listing.price.toFixed(2)}</span>
                   {listing.type === 'good' && listing.size && (
-                    <span className="text-gray-500 text-sm ml-2">• {listing.size}</span>
+                    <span className="text-gray-500 text-sm">{listing.size}</span>
                   )}
-                </p>
-                <button className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200">
+                </div>
+
+                {/* View Button */}
+                <button className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200 transition">
                   View Details
                 </button>
               </div>

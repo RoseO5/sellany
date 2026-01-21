@@ -15,13 +15,48 @@ export default function CreateListingPage() {
   const [color, setColor] = useState('');
   const [duration, setDuration] = useState('');
   const [locationType, setLocationType] = useState('in-person');
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setImages(files);
+
+      // Generate previews
+      const previews = files.map(file => URL.createObjectURL(file));
+      setImagePreviews(previews);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // Upload images first
+    const uploadedUrls: string[] = [];
+    for (const image of images) {
+      const formData = new FormData();
+      formData.append('file', image);
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.url) {
+          uploadedUrls.push(data.url);
+        }
+      } catch (err) {
+        setError('Failed to upload images');
+        setLoading(false);
+        return;
+      }
+    }
 
     // Build payload
     const payload: any = {
@@ -30,6 +65,7 @@ export default function CreateListingPage() {
       type,
       category,
       price: parseFloat(price),
+      images: uploadedUrls,
     };
 
     if (type === 'good') {
@@ -138,6 +174,25 @@ export default function CreateListingPage() {
             className="w-full p-2 border rounded"
             required
           />
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Images (up to 5)</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageChange}
+            className="w-full p-2 border rounded"
+          />
+          {imagePreviews.length > 0 && (
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {imagePreviews.map((src, i) => (
+                <img key={i} src={src} alt={`Preview ${i}`} className="w-full h-20 object-cover rounded" />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Goods-Specific Fields */}
