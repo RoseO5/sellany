@@ -1,273 +1,76 @@
-'use client';
+// src/app/page.tsx
+import { connectToDB } from '@/lib/mongodb';
+import Listing from '@/models/Listing';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-export default function CreateListingPage() {
-  const router = useRouter();
-  const [type, setType] = useState<'good' | 'service'>('good');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [price, setPrice] = useState('');
-  const [condition, setCondition] = useState('new');
-  const [size, setSize] = useState('');
-  const [color, setColor] = useState('');
-  const [duration, setDuration] = useState('');
-  const [locationType, setLocationType] = useState('in-person');
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      setImages(files);
-
-      // Generate previews
-      const previews = files.map(file => URL.createObjectURL(file));
-      setImagePreviews(previews);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    // Upload images first
-    const uploadedUrls: string[] = [];
-    for (const image of images) {
-      const formData = new FormData();
-      formData.append('file', image);
-
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        const data = await res.json();
-        if (data.url) {
-          uploadedUrls.push(data.url);
-        }
-      } catch (err) {
-        setError('Failed to upload images');
-        setLoading(false);
-        return;
-      }
-    }
-
-    // Build payload
-    const payload: any = {
-      title,
-      description,
-      type,
-      category,
-      price: parseFloat(price),
-      images: uploadedUrls,
-    };
-
-    if (type === 'good') {
-      payload.condition = condition;
-      payload.size = size;
-      payload.color = color;
-    } else {
-      payload.duration = duration ? parseInt(duration) : undefined;
-      payload.locationType = locationType;
-    }
-
-    try {
-      const res = await fetch('/api/listings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        alert('✅ Listing created successfully!');
-        router.push('/');
-      } else {
-        const data = await res.json();
-        setError(data.error || 'Failed to create listing');
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+export default async function HomePage() {
+  await connectToDB();
+  const listings = await Listing.find({ isPublished: true }).sort({ createdAt: -1 });
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Create New Listing</h1>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">SellAny</h1>
+          <a
+            href="/listings/create"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            ➕ Sell Now
+          </a>
+        </div>
+      </header>
 
-      {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
+      <main className="container mx-auto px-4 py-8">
+        <h2 className="text-xl font-semibold mb-6">Latest Listings</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Type Toggle */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Listing Type</label>
-          <div className="flex gap-6">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                checked={type === 'good'}
-                onChange={() => setType('good')}
-                className="mr-2"
-              />
-              Physical Good (shoes, bag, human hair, clothes)
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                checked={type === 'service'}
-                onChange={() => setType('service')}
-                className="mr-2"
-              />
-              Service (baking, painting, etc.)
-            </label>
+        {listings.length === 0 ? (
+          <p className="text-gray-500 text-center py-10">No listings yet. Be the first to sell!</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map((listing) => (
+              <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition">
+                {listing.images && listing.images[0] ? (
+                  <img
+                    src={listing.images[0]}
+                    alt={listing.title}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 rounded mb-3 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">📸 No image</span>
+                  </div>
+                )}
+
+                <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
+                  {listing.type === 'good' ? 'Product' : 'Service'}
+                </span>
+
+                <h3 className="font-medium text-gray-900 line-clamp-1">{listing.title}</h3>
+                <p className="text-gray-600 text-sm mt-1 line-clamp-2">{listing.description}</p>
+
+                <div className="mt-3 flex justify-between items-center">
+                  <span className="font-bold text-lg">
+                    ₦{listing.price.toLocaleString()}
+                  </span>
+                  {listing.type === 'good' && listing.size && (
+                    <span className="text-gray-500 text-sm">{listing.size}</span>
+                  )}
+                </div>
+
+                <button className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200 transition">
+                  View Details
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
-
-        {/* Shared Fields */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Title *</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Description *</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 border rounded"
-            rows={4}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Category * (e.g., "Human Hair", "Streetwear", "Baking")</label>
-          <input
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Price (USD) *</label>
-          <input
-            type="number"
-            step="0.01"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        {/* Image Upload */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Images (up to 5)</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            className="w-full p-2 border rounded"
-          />
-          {imagePreviews.length > 0 && (
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              {imagePreviews.map((src, i) => (
-                <img key={i} src={src} alt={`Preview ${i}`} className="w-full h-20 object-cover rounded" />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Goods-Specific Fields */}
-        {type === 'good' && (
-          <>
-            <div>
-              <label className="block text-sm font-medium mb-1">Condition *</label>
-              <select
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                className="w-full p-2 border rounded"
-                required
-              >
-                <option value="new">New</option>
-                <option value="used">Used</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Size (e.g., US 9, M, 24 inches)</label>
-              <input
-                type="text"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Color</label>
-              <input
-                type="text"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-          </>
         )}
+      </main>
 
-        {/* Services-Specific Fields */}
-        {type === 'service' && (
-          <>
-            <div>
-              <label className="block text-sm font-medium mb-1">Duration (minutes)</label>
-              <input
-                type="number"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Location Type</label>
-              <select
-                value={locationType}
-                onChange={(e) => setLocationType(e.target.value)}
-                className="w-full p-2 border rounded"
-              >
-                <option value="in-person">In-person</option>
-                <option value="online">Online</option>
-              </select>
-            </div>
-          </>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded font-medium disabled:opacity-50"
-        >
-          {loading ? 'Creating...' : 'Create Listing'}
-        </button>
-      </form>
+      <footer className="bg-white border-t py-6 mt-12">
+        <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
+          © {new Date().getFullYear()} SellAny — Nigerian Marketplace for Goods & Services
+        </div>
+      </footer>
     </div>
   );
 }

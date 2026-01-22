@@ -29,7 +29,6 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
               <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition">
-                {/* Image */}
                 {listing.images && listing.images[0] ? (
                   <img
                     src={listing.images[0]}
@@ -42,26 +41,22 @@ export default async function HomePage() {
                   </div>
                 )}
 
-                {/* Type badge */}
                 <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
                   {listing.type === 'good' ? 'Product' : 'Service'}
                 </span>
 
-                {/* Title */}
                 <h3 className="font-medium text-gray-900 line-clamp-1">{listing.title}</h3>
-
-                {/* Description */}
                 <p className="text-gray-600 text-sm mt-1 line-clamp-2">{listing.description}</p>
 
-                {/* Price & Details */}
                 <div className="mt-3 flex justify-between items-center">
-                  <span className="font-bold text-lg">₦{listing.price.toFixed(2)}</span>
+                  <span className="font-bold text-lg">
+                    ₦{listing.price.toLocaleString()}
+                  </span>
                   {listing.type === 'good' && listing.size && (
                     <span className="text-gray-500 text-sm">{listing.size}</span>
                   )}
                 </div>
 
-                {/* View Button */}
                 <button className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200 transition">
                   View Details
                 </button>

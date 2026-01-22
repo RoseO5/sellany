@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
       locationType,
     } = body;
 
-    // Basic validation
     if (!title || !description || !type || !category || price == null) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
     }
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest) {
       description,
       type,
       category,
-      price: parseFloat(price),
+      price: parseInt(price, 10),
       ...(type === 'good' && { condition, size, color }),
       ...(type === 'service' && { duration: duration ? parseInt(duration) : undefined, locationType }),
     });
