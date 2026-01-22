@@ -1,4 +1,5 @@
 // src/app/page.tsx
+import Link from 'next/link';
 import { connectToDB } from '@/lib/mongodb';
 import Listing from '@/models/Listing';
 
@@ -11,12 +12,12 @@ export default async function HomePage() {
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">SellAny</h1>
-          <a
+          <Link
             href="/listings/create"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
             ➕ Sell Now
-          </a>
+          </Link>
         </div>
       </header>
 
