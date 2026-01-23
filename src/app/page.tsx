@@ -9,6 +9,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">SellAny</h1>
@@ -21,6 +22,7 @@ export default async function HomePage() {
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <h2 className="text-xl font-semibold mb-6">Latest Listings</h2>
 
@@ -30,6 +32,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
               <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition">
+                {/* Image */}
                 {listing.images && listing.images[0] ? (
                   <img
                     src={listing.images[0]}
@@ -42,13 +45,18 @@ export default async function HomePage() {
                   </div>
                 )}
 
+                {/* Type badge */}
                 <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
                   {listing.type === 'good' ? 'Product' : 'Service'}
                 </span>
 
+                {/* Title */}
                 <h3 className="font-medium text-gray-900 line-clamp-1">{listing.title}</h3>
+
+                {/* Description */}
                 <p className="text-gray-600 text-sm mt-1 line-clamp-2">{listing.description}</p>
 
+                {/* Price & Size */}
                 <div className="mt-3 flex justify-between items-center">
                   <span className="font-bold text-lg">
                     ₦{listing.price.toLocaleString()}
@@ -58,15 +66,20 @@ export default async function HomePage() {
                   )}
                 </div>
 
-                <button className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200 transition">
+                {/* View Details Button */}
+                <Link
+                  href={`/listings/${listing._id.toString()}`}
+                  className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200 transition text-center block"
+                >
                   View Details
-                </button>
+                </Link>
               </div>
             ))}
           </div>
         )}
       </main>
 
+      {/* Footer */}
       <footer className="bg-white border-t py-6 mt-12">
         <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
           © {new Date().getFullYear()} SellAny — Nigerian Marketplace for Goods & Services
