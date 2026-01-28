@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       color,
       duration,
       locationType,
+      images = [], // 👈 ADD THIS
     } = body;
 
     if (!title || !description || !type || !category || price == null) {
@@ -30,6 +31,7 @@ export async function POST(request: NextRequest) {
       type,
       category,
       price: parseInt(price, 10),
+      images, // 👈 PASS IT HERE
       ...(type === 'good' && { condition, size, color }),
       ...(type === 'service' && { duration: duration ? parseInt(duration) : undefined, locationType }),
     });
