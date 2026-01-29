@@ -4,10 +4,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-// We'll fetch the listing via a simple API route instead of server-side DB call
-// to avoid build-time MongoDB connection
-
-export default function ListingDetailPage({ params }: { params: { id: string } }) {
+export default function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -15,11 +12,14 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
   const [phone, setPhone] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  // Fetch listing from API (safe for client-side)
+  // Fetch listing from API
   useEffect(() => {
     const fetchListing = async () => {
       try {
-        const res = await fetch(`/api/listings/${params.id}`);
+        // Await the params promise
+        const { id } = await params;
+        
+        const res = await fetch(`/api/listings/${id}`);
         if (!res.ok) {
           alert('Listing not found');
           window.location.href = '/';
@@ -37,7 +37,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
     };
 
     fetchListing();
-  }, [params.id]);
+  }, []);
 
   // Check subscription status
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
     }
 
     const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.src = 'https://js.paystack.co/v1/inline.js'; // ✅ Removed extra spaces
     script.onload = () => {
       // @ts-ignore
       const handler = PaystackPop.setup({
@@ -90,6 +90,14 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
+  if (!listing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-600">Listing not found. Please go back.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       {/* Header */}
@@ -105,7 +113,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
       <main className="container mx-auto px-4 py-6">
         {/* Main Image */}
         <div className="mb-6">
-          {listing?.images?.[0] ? (
+          {listing.images?.[0] ? (
             <img
               src={listing.images[0]}
               alt={listing.title}
@@ -123,16 +131,16 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
           <div className="flex justify-between items-start">
             <div>
               <span className="inline-block px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded mb-2">
-                {listing?.type === 'good' ? 'Product' : 'Service'}
+                {listing.type === 'good' ? 'Product' : 'Service'}
               </span>
-              <h1 className="text-2xl font-bold text-gray-900">{listing?.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{listing.title}</h1>
             </div>
             <span className="font-bold text-xl text-green-600">
-              ₦{listing?.price?.toLocaleString()}
+              ₦{listing.price.toLocaleString()}
             </span>
           </div>
 
-          <p className="mt-4 text-gray-700">{listing?.description}</p>
+          <p className="mt-4 text-gray-700">{listing.description}</p>
 
           {/* Contact Button */}
           <button
@@ -152,7 +160,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
             <p className="mt-2 text-sm text-gray-600">
               Pay ₦200/month to contact sellers and buy items on SellAny.
             </p>
-            
+
             <input
               type="email"
               placeholder="Your email"
@@ -169,7 +177,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
               className="w-full p-2 border rounded mt-2 text-sm"
               required
             />
-            
+
             <button
               onClick={handleSubscribe}
               className="w-full bg-green-600 text-white py-2 rounded mt-4 text-sm"
