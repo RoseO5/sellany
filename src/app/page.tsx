@@ -31,7 +31,7 @@ export default async function HomePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
-              <div key={listing._id.toString()} className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition">
+              <div key={listing._id.toHexString()} className="bg-white rounded-lg border p-4 shadow-sm hover:shadow-md transition">
                 {/* Image */}
                 {listing.images && listing.images[0] ? (
                   <img
@@ -68,7 +68,7 @@ export default async function HomePage() {
 
                 {/* View Details Button */}
                 <Link
-                  href={`/listings/${listing._id.toString()}`}
+                  href={`/listings/${listing._id.toHexString()}`}
                   className="mt-3 w-full bg-gray-100 text-gray-800 py-1.5 rounded text-sm hover:bg-gray-200 transition text-center block"
                 >
                   View Details
