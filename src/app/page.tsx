@@ -1,9 +1,12 @@
 // src/app/page.tsx
 import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { connectToDB } from '@/lib/mongodb';
 import Listing from '@/models/Listing';
 
 export default async function HomePage() {
+  const session = await getServerSession(authOptions);
   await connectToDB();
   const listings = await Listing.find({ isPublished: true }).sort({ createdAt: -1 });
 
@@ -13,12 +16,24 @@ export default async function HomePage() {
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">SellAny</h1>
-          <Link
-            href="/listings/create"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            ➕ Sell Now
-          </Link>
+          
+          <div className="flex items-center gap-4">
+            {session ? (
+              <>
+                <span className="text-gray-700 hidden sm:inline">Hi, {session.user?.name}</span>
+                <Link href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                  Dashboard
+                </Link>
+              </>
+            ) : (
+              <a
+                href="/api/auth/signin"
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              >
+                Sign In
+              </a>
+            )}
+          </div>
         </div>
       </header>
 
