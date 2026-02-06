@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const meta Metadata = {
+export const metadata: Metadata = {
   title: "SellAny - Nigerian Marketplace",
   description: "Buy and sell goods & services in Nigeria",
 };

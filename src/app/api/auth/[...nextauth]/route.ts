@@ -3,7 +3,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { connectToDB } from '@/lib/mongodb';
 import User from '@/models/User';
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -19,14 +19,14 @@ const handler = NextAuth({
     },
     async signIn({ user, account, profile }) {
       await connectToDB();
-      
+
       // Check URL for referrer
-      const url = typeof window !== 'undefined' 
-        ? window.location.href 
+      const url = typeof window !== 'undefined'
+        ? window.location.href
         : account?.url || '';
-      
+
       const refParam = new URL(url).searchParams.get('ref');
-      
+
       let referredBy = null;
       if (refParam) {
         const referrer = await User.findOne({ referralCode: refParam });
@@ -34,10 +34,10 @@ const handler = NextAuth({
           referredBy = referrer._id;
         }
       }
-      
+
       // Generate referral code
       const referralCode = 'SELLANY' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      
+
       // Create or update user
       await User.findOneAndUpdate(
         { email: user.email },
@@ -50,11 +50,13 @@ const handler = NextAuth({
         },
         { upsert: true, new: true }
       );
-      
+
       return true;
     },
   },
   session: { strategy: 'jwt' },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
