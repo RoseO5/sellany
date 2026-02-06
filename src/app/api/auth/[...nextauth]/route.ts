@@ -1,9 +1,10 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import type { AuthOptions } from 'next-auth';
 import { connectToDB } from '@/lib/mongodb';
 import User from '@/models/User';
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -11,13 +12,13 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: { session: any; token: any }) {
       if (session.user) {
-        session.user.id = token.sub!;
+        session.user.id = token.sub;
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }: { user: any; account: any }) {
       await connectToDB();
 
       // Check URL for referrer
