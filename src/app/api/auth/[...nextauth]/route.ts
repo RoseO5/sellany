@@ -55,7 +55,7 @@ export const authOptions = {
       return true;
     },
   },
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt' as const }, // 👈 ONLY CHANGE: added "as const"
 };
 
 const handler = NextAuth(authOptions);
