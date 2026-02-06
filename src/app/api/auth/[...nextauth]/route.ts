@@ -1,10 +1,9 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import type { AuthOptions } from 'next-auth';
 import { connectToDB } from '@/lib/mongodb';
 import User from '@/models/User';
 
-export const authOptions: AuthOptions = {
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -13,7 +12,8 @@ export const authOptions: AuthOptions = {
   ],
   callbacks: {
     async session({ session, token }: { session: any; token: any }) {
-      if (session.user) {
+      // Safely attach user ID from token
+      if (token?.sub) {
         session.user.id = token.sub;
       }
       return session;
