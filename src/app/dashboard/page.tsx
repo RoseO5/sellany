@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Dashboard() {
-  const {  session, status } = useSession();
+  const {  session, status } = useSession(); // ✅ CORRECT — line 8
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -106,7 +106,6 @@ export default function Dashboard() {
             >
               ➕ Create New Listing
             </Link>
-            {/* TODO: Show user's listings */}
           </div>
         </div>
       </div>
