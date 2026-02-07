@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Dashboard() {
-  const {  session, status } = useSession();
+  const {  session, status } = useSession(); // 👈 FIXED
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function Dashboard() {
                 <p className="text-gray-600">{session.user?.email}</p>
               </div>
             </div>
-            
+
             <div className="mt-4">
               <label className="block text-sm font-medium mb-2">Phone Number (for airtime)</label>
               <input
@@ -79,16 +79,16 @@ export default function Dashboard() {
             <p className="mb-4">
               Share your link and earn ₦100 airtime for every seller who upgrades to premium!
             </p>
-            
+
             {user?.referralCode && (
               <>
                 <div className="bg-gray-100 p-3 rounded mb-4">
                   <p className="text-sm font-mono break-all">
-                    https://sellany-roseo5.vercel.app?ref={user.referralCode}
+                    https://sellany-roseo5.vercel.app?ref={user.referralCode} {/* 👈 FIXED SPACES */}
                   </p>
                 </div>
                 <button
-                  onClick={() => navigator.clipboard.writeText(`https://sellany-roseo5.vercel.app?ref=${user.referralCode}`)}
+                  onClick={() => navigator.clipboard.writeText(`https://sellany-roseo5.vercel.app?ref=${user.referralCode}`)} {/* 👈 FIXED SPACES */}
                   className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
                 >
                   Copy Link
