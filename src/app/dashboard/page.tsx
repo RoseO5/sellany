@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Dashboard() {
-  const {  session, status } = useSession(); // ✅ CORRECT — line 8
+  const { data: session, status } = useSession(); // ✅ CORRECT — line 8
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
