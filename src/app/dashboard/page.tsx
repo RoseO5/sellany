@@ -84,11 +84,11 @@ export default function Dashboard() {
               <>
                 <div className="bg-gray-100 p-3 rounded mb-4">
                   <p className="text-sm font-mono break-all">
-                    https://sellany-roseo5.vercel.app?ref={user.referralCode}
+                    https://sellany-seven.vercel.app?ref={user.referralCode}
                   </p>
                 </div>
                 <button
-                  onClick={() => navigator.clipboard.writeText(`https://sellany-roseo5.vercel.app?ref=${user.referralCode}`)}
+                  onClick={() => navigator.clipboard.writeText(`https://sellany-seven.vercel.app?ref=${user.referralCode}`)}
                   className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
                 >
                   Copy Link
