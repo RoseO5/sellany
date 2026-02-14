@@ -5,16 +5,41 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Dashboard() {
-  const { data: session, status } = useSession(); // ✅ CORRECT — line 8
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<any>(null);
+  const [phone, setPhone] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (session) {
       fetch('/api/user/me')
         .then(res => res.json())
-        .then(data => setUser(data));
+        .then(data => {
+          setUser(data);
+          setPhone(data?.phone || '');
+        });
     }
   }, [session]);
+
+  const handleSavePhone = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/user/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+      if (res.ok) {
+        alert('Phone number saved successfully!');
+      } else {
+        alert('Failed to save phone number.');
+      }
+    } catch (err) {
+      alert('Error saving phone number.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (status === 'loading') {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -65,10 +90,17 @@ export default function Dashboard() {
                 type="tel"
                 placeholder="08012345678"
                 className="w-full p-2 border rounded"
-                defaultValue={user?.phone || ''}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
-              <button className="mt-2 bg-gray-200 text-gray-800 px-4 py-1 rounded text-sm">
-                Save Phone
+              <button
+                onClick={handleSavePhone}
+                disabled={saving}
+                className={`mt-2 px-4 py-1 rounded text-sm ${
+                  saving ? 'bg-gray-400' : 'bg-blue-600 text-white'
+                }`}
+              >
+                {saving ? 'Saving...' : 'Save Phone'}
               </button>
             </div>
           </div>
