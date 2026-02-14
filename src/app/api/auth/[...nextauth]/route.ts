@@ -4,6 +4,10 @@ import { connectToDB } from '@/lib/mongodb';
 import User from '@/models/User';
 
 export const authOptions = {
+  // 🔑 CRITICAL FOR VERCEL
+  trustHost: true,
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -21,18 +25,20 @@ export const authOptions = {
     async signIn({ user, account }: { user: any; account: any }) {
       await connectToDB();
 
-      // Check URL for referrer
-      const url = typeof window !== 'undefined'
-        ? window.location.href
-        : account?.url || '';
-
-      const refParam = new URL(url).searchParams.get('ref');
-
+      // Get referrer code from the callback URL
       let referredBy = null;
-      if (refParam) {
-        const referrer = await User.findOne({ referralCode: refParam });
-        if (referrer) {
-          referredBy = referrer._id;
+      if (account?.url) {
+        try {
+          const url = new URL(account.url);
+          const refParam = url.searchParams.get('ref');
+          if (refParam) {
+            const referrer = await User.findOne({ referralCode: refParam });
+            if (referrer) {
+              referredBy = referrer._id;
+            }
+          }
+        } catch (e) {
+          console.log('Referral parsing error:', e);
         }
       }
 
@@ -55,7 +61,7 @@ export const authOptions = {
       return true;
     },
   },
-  session: { strategy: 'jwt' as const }, // 👈 ONLY CHANGE: added "as const"
+  session: { strategy: 'jwt' as const },
 };
 
 const handler = NextAuth(authOptions);
