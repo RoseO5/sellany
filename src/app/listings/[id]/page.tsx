@@ -20,7 +20,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
         const data = await res.json();
         setListing(data);
 
-        // 🔑 Track view count
+        // Track view count
         fetch(`/api/listings/${id}/view`, { method: 'POST' });
       } catch (err) {
         console.error(err);
@@ -30,24 +30,22 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
         setLoading(false);
       }
     };
-
     fetchListing();
   }, []);
 
   const handleContactClick = () => {
-    if (listing?.sellerPhone) {
+    const phone = listing?.sellerPhone || listing?.seller?.phone;
+    if (phone) {
       const message = `Hi, I saw your "${listing.title}" on SellAny. I'm interested!`;
-      let cleanPhone = listing.sellerPhone.replace(/\D/g, '');
-      // Convert 080... → 23480...
+      let cleanPhone = phone.replace(/\D/g, '');
       if (cleanPhone.startsWith('0')) {
         cleanPhone = '234' + cleanPhone.slice(1);
       } else if (!cleanPhone.startsWith('234')) {
         cleanPhone = '234' + cleanPhone;
       }
-      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
+      window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
     } else {
-      alert('Seller contact not available');
+      alert('Seller did not provide a contact number.');
     }
   };
 
@@ -59,15 +57,19 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center p-6">
-          <h1 className="text-2xl font-bold text-gray-900">Listing Not Found</h1>
-          <p className="mt-2 text-gray-600">The listing you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Not Found</h1>
+          <p className="mt-2 text-gray-600">This listing doesn’t exist.</p>
           <Link href="/" className="mt-4 inline-block text-blue-600 hover:underline">
-            ← Back to Home
+            ← Back to Listings
           </Link>
         </div>
       </div>
     );
   }
+
+  // Handle missing images gracefully
+  const images = Array.isArray(listing.images) ? listing.images : [];
+  const hasImages = images.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
@@ -80,20 +82,38 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
       </header>
 
       <main className="container mx-auto px-4 py-6">
+        {/* Images */}
         <div className="mb-6">
-          {listing.images?.[0] ? (
-            <img
-              src={listing.images[0]}
-              alt={listing.title}
-              className="w-full h-64 md:h-80 object-cover rounded-lg"
-            />
+          {hasImages ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <img
+                src={images[0]}
+                alt={listing.title}
+                className="w-full h-64 md:h-80 object-cover rounded-lg"
+                onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available')}
+              />
+              {images.length > 1 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {images.slice(1, 5).map((img: string, i: number) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt={`${listing.title} ${i + 1}`}
+                      className="w-full h-32 object-cover rounded border"
+                      onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150?text=...')}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           ) : (
             <div className="w-full h-64 md:h-80 bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className="text-gray-500">📸 No image</span>
+              <span className="text-gray-500">📸 No image available</span>
             </div>
           )}
         </div>
 
+        {/* Listing Info */}
         <div className="bg-white rounded-lg border p-6">
           <div className="flex justify-between items-start">
             <div>
@@ -103,16 +123,23 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
               <h1 className="text-2xl font-bold text-gray-900">{listing.title}</h1>
             </div>
             <span className="font-bold text-xl text-green-600">
-              ₦{listing.price.toLocaleString()}
+              ₦{Number(listing.price).toLocaleString()}
             </span>
           </div>
 
-          <p className="mt-4 text-gray-700 whitespace-pre-line">{listing.description}</p>
-          <p className="text-sm text-gray-500 mt-2">👁️ Viewed {listing.viewCount || 0} times</p>
+          <p className="mt-4 text-gray-700 whitespace-pre-line">
+            {listing.description || 'No description provided.'}
+          </p>
+
+          {listing.length && (
+            <p className="mt-2 text-sm text-gray-600">Length: {listing.length}</p>
+          )}
+
+          <p className="text-sm text-gray-500 mt-3">👁️ Viewed {listing.viewCount || 0} times</p>
 
           <button
             onClick={handleContactClick}
-            className="mt-8 w-full bg-blue-600 text-white py-3 rounded font-medium hover:bg-blue-700 transition"
+            className="mt-6 w-full bg-blue-600 text-white py-3 rounded font-medium hover:bg-blue-700 transition"
           >
             💬 Contact Seller
           </button>
