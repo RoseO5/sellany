@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Dashboard() {
-  const { data: session, status } = useSession();
+  const {  session, status } = useSession();
   const [user, setUser] = useState<any>(null);
   const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
@@ -85,7 +85,7 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-4">
-              <label className="block text-sm font-medium mb-2">Phone Number (for airtime)</label>
+              <label className="block text-sm font-medium mb-2">Phone Number (for referrals)</label>
               <input
                 type="tel"
                 placeholder="08012345678"
@@ -105,29 +105,28 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Referral Card */}
-          <div className="bg-white p-6 rounded-lg border">
-            <h2 className="text-xl font-semibold mb-4">Referral Program</h2>
-            <p className="mb-4">
-              Share your link and earn ₦100 airtime for every seller who upgrades to premium!
-            </p>
+          {/* Referral Card — UPDATED */}
+          {user?.isPremium && user?.referralCode && (
+            <div className="bg-white p-6 rounded-lg border">
+              <h2 className="text-xl font-semibold mb-4">Referral Program</h2>
+              <p className="mb-4">
+                Refer other sellers! When they upgrade to Premium and stay active for 2 months, 
+                you’ll pay only <strong>₦200</strong> for your next month instead of ₦300.
+              </p>
 
-            {user?.referralCode && (
-              <>
-                <div className="bg-gray-100 p-3 rounded mb-4">
-                  <p className="text-sm font-mono break-all">
-                    https://sellany-seven.vercel.app?ref={user.referralCode}
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigator.clipboard.writeText(`https://sellany-seven.vercel.app?ref=${user.referralCode}`)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
-                >
-                  Copy Link
-                </button>
-              </>
-            )}
-          </div>
+              <div className="bg-gray-100 p-3 rounded mb-4">
+                <p className="text-sm font-mono break-all">
+                  https://sellany-seven.vercel.app?ref={user.referralCode}
+                </p>
+              </div>
+              <button
+                onClick={() => navigator.clipboard.writeText(`https://sellany-seven.vercel.app?ref=${user.referralCode}`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Copy Link
+              </button>
+            </div>
+          )}
 
           {/* My Listings */}
           <div className="bg-white p-6 rounded-lg border md:col-span-2">
