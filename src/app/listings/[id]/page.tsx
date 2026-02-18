@@ -234,6 +234,7 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
           <p className="mt-4 text-gray-700">{listing.description}</p>
+          <p className="text-sm text-gray-500 mt-2">👁️ Viewed {listing.viewCount || 0} times</p>
 
           {/* 👁️ View Count (optional - add later) */}
           {/* <p className="text-sm text-gray-500 mt-2">Viewed {listing.viewCount || 0} times</p> */}
