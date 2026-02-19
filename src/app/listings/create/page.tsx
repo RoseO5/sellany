@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const {  session } = useSession(); // Safe: doesn't block render
   const [user, setUser] = useState<any>(null);
   const [type, setType] = useState<'good' | 'service'>('good');
   const [title, setTitle] = useState('');
@@ -25,13 +25,13 @@ export default function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 👇 Fetch user (including phone) on load
+  // Only fetch user if logged in
   useEffect(() => {
-    if (session) {
+    if (session?.user?.email) {
       fetch('/api/user/me')
         .then(res => res.json())
         .then(data => setUser(data))
-        .catch(err => console.error('Failed to fetch user:', err));
+        .catch(err => console.error('User fetch failed:', err));
     }
   }, [session]);
 
@@ -39,7 +39,6 @@ export default function CreateListingPage() {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       setImages(files);
-
       const previews = files.map(file => URL.createObjectURL(file));
       setImagePreviews(previews);
     }
@@ -47,30 +46,33 @@ export default function CreateListingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    // 👇 Ensure phone is saved
-    if (!user?.phone) {
-      setError('Please save your phone number in Dashboard first.');
-      setLoading(false);
+    // Ensure user is logged in
+    if (!session) {
+      alert('Please sign in to create a listing.');
       return;
     }
+
+    // Ensure phone is saved
+    if (!user?.phone) {
+      setError('Please save your phone number in Dashboard first.');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
 
     const uploadedUrls: string[] = [];
     for (const image of images) {
       const formData = new FormData();
       formData.append('file', image);
-
       try {
         const res = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
         const data = await res.json();
-        if (data.url) {
-          uploadedUrls.push(data.url);
-        }
+        if (data.url) uploadedUrls.push(data.url);
       } catch (err) {
         setError('Failed to upload images');
         setLoading(false);
@@ -85,7 +87,7 @@ export default function CreateListingPage() {
       category,
       price: parseInt(price, 10),
       images: uploadedUrls,
-      sellerPhone: user.phone, // ✅ CRITICAL: attach phone
+      sellerPhone: user.phone,
     };
 
     if (type === 'good') {
