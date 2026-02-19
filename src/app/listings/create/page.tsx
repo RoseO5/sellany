@@ -1,13 +1,15 @@
 'use client';
 
-// 👇 ADD THIS LINE
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function CreateListingPage() {
   const router = useRouter();
+  const {  session } = useSession();
+  const [user, setUser] = useState<any>(null);
   const [type, setType] = useState<'good' | 'service'>('good');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -23,6 +25,16 @@ export default function CreateListingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // 👇 Fetch user (including phone) on load
+  useEffect(() => {
+    if (session) {
+      fetch('/api/user/me')
+        .then(res => res.json())
+        .then(data => setUser(data))
+        .catch(err => console.error('Failed to fetch user:', err));
+    }
+  }, [session]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -37,6 +49,13 @@ export default function CreateListingPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    // 👇 Ensure phone is saved
+    if (!user?.phone) {
+      setError('Please save your phone number in Dashboard first.');
+      setLoading(false);
+      return;
+    }
 
     const uploadedUrls: string[] = [];
     for (const image of images) {
@@ -66,6 +85,7 @@ export default function CreateListingPage() {
       category,
       price: parseInt(price, 10),
       images: uploadedUrls,
+      sellerPhone: user.phone, // ✅ CRITICAL: attach phone
     };
 
     if (type === 'good') {
