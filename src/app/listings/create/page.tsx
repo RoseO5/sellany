@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react';
 
 export default function CreateListingPage() {
   const router = useRouter();
-  const {  session } = useSession(); // Safe: doesn't block render
+  const { data: session, status } = useSession(); // Safe: doesn't block render
   const [user, setUser] = useState<any>(null);
   const [type, setType] = useState<'good' | 'service'>('good');
   const [title, setTitle] = useState('');
