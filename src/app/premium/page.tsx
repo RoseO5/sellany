@@ -22,7 +22,7 @@ export default function PremiumPage() {
       // @ts-ignore
       const handler = PaystackPop.setup({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
-        email: session.user.email,
+        email: session?.user?.email || '',
         amount: 30000,
         currency: 'NGN',
         channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money'],
