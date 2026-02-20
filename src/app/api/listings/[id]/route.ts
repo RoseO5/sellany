@@ -13,7 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   await connectToDB();
-  const listing = await Listing.findById(id);
+  const listing = await Listing.findByIdAndUpdate(id, { $inc: { viewCount: 1 } }, { new: true });
   
   if (!listing) {
     return Response.json({ error: 'Listing not found' }, { status: 404 });
