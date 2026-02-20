@@ -67,6 +67,20 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {user && !user.isPremium && (
+            <div className="bg-blue-50 p-4 rounded-lg border">
+              <h3 className="font-bold text-lg">✨ Go Premium – ₦300/month</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Unlimited listings, analytics, and referral rewards!
+              </p>
+              <button
+                onClick={() => window.location.href = "/premium"}
+                className="mt-3 bg-blue-600 text-white px-4 py-2 rounded text-sm"
+              >
+                Upgrade Now
+              </button>
+            </div>
+          )}
           {/* Profile Card */}
           <div className="bg-white p-6 rounded-lg border">
             <h2 className="text-xl font-semibold mb-4">Profile</h2>
