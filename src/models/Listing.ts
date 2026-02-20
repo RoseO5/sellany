@@ -8,6 +8,8 @@ const ListingSchema = new Schema({
   price: { type: Number, required: true },
   images: [{ type: String }],
   seller: { type: Schema.Types.ObjectId, ref: 'User', default: '660000000000000000000000' },
+  sellerPhone: { type: String, required: true },
+  viewCount: { type: Number, default: 0 },
   isPublished: { type: Boolean, default: true },
   // Goods
   condition: String,
