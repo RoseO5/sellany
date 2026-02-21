@@ -22,6 +22,8 @@ export default function PremiumPage() {
       // @ts-ignore
       const handler = PaystackPop.setup({
         key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+        console.log('Paystack Key:', process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
+        alert('Key prefix: ' + process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY?.slice(0,7));
         email: session?.user?.email || '',
         amount: 30000,
         currency: 'NGN',
