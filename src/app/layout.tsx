@@ -30,6 +30,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           {children}
+        <div className="text-center py-6 text-xs text-gray-500">
+          Need help? 💬 <a href="https://wa.me/2348142750728" className="text-blue-600 underline">Chat us on WhatsApp</a>
+        </div>
         </AuthProvider>
       </body>
     </html>
