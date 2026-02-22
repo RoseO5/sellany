@@ -26,7 +26,7 @@ export default function PremiumPage() {
         amount: 30000,
         currency: 'NGN',
         channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money'],
-        callback: function (response) {
+        callback: function (response: any) {
           alert('✅ Payment successful! Activating premium...');
           window.location.href = '/dashboard';
         },
