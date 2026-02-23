@@ -1,13 +1,49 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+
+declare global {
+  interface Window {
+    PaystackPop: any;
+  }
+}
 
 export default function PremiumPage() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
+  const [price, setPrice] = useState(300);
 
-  const handleSubscribe = () => {
+  useEffect(() => {
+    const fetchDiscount = async () => {
+      if (!session?.user?.email) return;
+      try {
+        const res = await fetch(`/api/user/referral-discount?email=${encodeURIComponent(session.user.email)}`);
+        const data = await res.json();
+        setPrice(data.price || 300);
+      } catch {
+        console.error('Failed to load discount');
+      }
+    };
+
+    fetchDiscount();
+  }, [session]);
+
+  const loadPaystackScript = () => {
+    return new Promise((resolve) => {
+      if (window.PaystackPop) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.onload = () => resolve(true);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleSubscribe = async () => {
     if (!session?.user?.email) {
       alert('Please sign in first');
       return;
@@ -15,31 +51,24 @@ export default function PremiumPage() {
 
     setLoading(true);
 
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
+    await loadPaystackScript();
 
-    script.onload = () => {
-      // @ts-ignore
-      const handler = PaystackPop.setup({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
-        email: session?.user?.email || '',
-        amount: 30000,
-        currency: 'NGN',
-        channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money'],
-        callback: function (response: any) {
-          alert('✅ Payment successful! Activating premium...');
-          window.location.href = '/dashboard';
-        },
-        onClose: () => {
-          setLoading(false);
-          alert('Payment cancelled');
-        },
-      });
+    const handler = window.PaystackPop.setup({
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+      email: session.user.email,
+      amount: price * 100,
+      currency: 'NGN',
+      channels: ['card', 'bank', 'ussd', 'qr', 'mobile_money'],
+      callback: function () {
+        alert('✅ Payment successful! Premium activation in progress...');
+        window.location.href = '/dashboard';
+      },
+      onClose: () => {
+        setLoading(false);
+      },
+    });
 
-      handler.openIframe();
-    };
-
-    document.body.appendChild(script);
+    handler.openIframe();
   };
 
   return (
@@ -47,15 +76,21 @@ export default function PremiumPage() {
       <h1 className="text-2xl font-bold">🌟 Go Premium</h1>
 
       <p className="mt-2 text-gray-600">
-        Pay ₦300/month to unlock:
+        Pay <span className="font-bold">₦{price}/month</span> to unlock:
       </p>
 
       <ul className="mt-3 list-disc pl-5 space-y-1 text-gray-700">
         <li>Unlimited listings</li>
         <li>View count analytics</li>
-        <li>Earn referral discounts</li>
+        <li>Earn referral rewards</li>
         <li>Verified seller badge</li>
       </ul>
+
+      {price < 300 && (
+        <p className="mt-2 text-sm text-green-600">
+          🎉 You’ve earned a ₦{300 - price} discount!
+        </p>
+      )}
 
       <button
         onClick={handleSubscribe}
@@ -64,7 +99,7 @@ export default function PremiumPage() {
           loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600'
         }`}
       >
-        {loading ? 'Processing...' : 'Pay ₦300 Now'}
+        {loading ? 'Processing...' : `Pay ₦${price} Now`}
       </button>
     </div>
   );
