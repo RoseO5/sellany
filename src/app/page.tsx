@@ -1,3 +1,4 @@
+import SearchBar from "@/components/SearchBar";
 // src/app/page.tsx
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
@@ -38,19 +39,7 @@ export default async function HomePage() {
       </header>
 
       {/* Main Content */}
-    <div className="mb-8 text-center">
-      <input
-        type="text"
-        placeholder="Search for wigs, cakes, shoes..."
-        className="w-full max-w-2xl p-3 border rounded-lg"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            const q = (e.target as HTMLInputElement).value;
-            window.location.href = "/search?q=" + encodeURIComponent(q);
-          }
-        }}
-      />
-    </div>
+      <SearchBar />
       <main className="container mx-auto px-4 py-8">
         <h2 className="text-xl font-semibold mb-6">Latest Listings</h2>
 
