@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       event.data.amount === 30000 &&
       event.data.currency === 'NGN'
     ) {
-      const email = event.data.customer.email;
+      const email = event.data.metadata?.userId || event.data.customer.email;
 
       const user = await User.findOne({ email });
 

@@ -55,6 +55,7 @@ export default function PremiumPage() {
 
     const handler = window.PaystackPop.setup({
       key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+    meta: { userId: session.user.email },
       email: session.user.email,
       amount: price * 100,
       currency: 'NGN',
