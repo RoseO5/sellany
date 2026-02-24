@@ -81,6 +81,18 @@ export default function Dashboard() {
               </button>
             </div>
           )}
+          {/* Premium Expiry Reminder */}
+          {user?.isPremium && user.premiumExpiresAt && new Date(user.premiumExpiresAt) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
+            <div className="bg-yellow-50 border border-yellow-300 p-4 rounded-lg mt-4">
+              <p className="text-yellow-800 font-medium">⚠️ Your premium plan expires in 3 days!</p>
+              <button
+                onClick={() => window.location.href = "/premium"}
+                className="mt-2 bg-yellow-600 text-white px-3 py-1 rounded text-sm"
+              >
+                Renew Now
+              </button>
+            </div>
+          )}
           {/* Profile Card */}
           <div className="bg-white p-6 rounded-lg border">
             <h2 className="text-xl font-semibold mb-4">Profile</h2>
