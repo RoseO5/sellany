@@ -1,24 +1,34 @@
-import { Schema, models, model } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-const ListingSchema = new Schema({
+export interface IListing extends Document {
+  user: mongoose.Types.ObjectId;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  size?: string;
+  image?: string;
+  imagePublicId?: string;
+  isActive: boolean;
+  expiresAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const ListingSchema: Schema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  type: { type: String, enum: ['good', 'service'], required: true },
-  category: { type: String, required: true },
   price: { type: Number, required: true },
-  images: [{ type: String }],
-  seller: { type: Schema.Types.ObjectId, ref: 'User', default: '660000000000000000000000' },
-  sellerPhone: { type: String, required: true },
-  viewCount: { type: Number, default: 0 },
-  isPublished: { type: Boolean, default: true },
-  // Goods
-  condition: String,
-  size: String,
-  color: String,
-  // Services
-  duration: Number,
-  locationType: String,
+  category: { type: String, required: true },
+  size: { type: String },
+  image: { type: String },
+  imagePublicId: { type: String },
+  isActive: { type: Boolean, default: true },
+  expiresAt: { type: Date },
 }, { timestamps: true });
 
-const Listing = models.Listing || model('Listing', ListingSchema);
-export default Listing;
+// Index for querying active listings
+ListingSchema.index({ isActive: 1, expiresAt: 1, createdAt: -1 });
+
+export default mongoose.models.Listing || mongoose.model<IListing>('Listing', ListingSchema);

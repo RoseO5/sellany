@@ -155,8 +155,36 @@ export default function Dashboard() {
           )}
 
           {/* My Listings */}
+
+          {/* Expired Listings */}
+          {user?.isPremium && (
+            <div className="bg-white p-6 rounded-lg border md:col-span-2">
+              <h2 className="text-xl font-semibold mb-4">Expired Listings</h2>
+              <p className="text-gray-600 mb-4">Renew your expired listings to make them visible again.</p>
+              <button
+                onClick={() => window.location.href = "/dashboard/listings?filter=expired"}
+                className="bg-orange-600 text-white px-4 py-2 rounded"
+              >
+                View & Renew Expired
+              </button>
+            </div>
+          )}
           <div className="bg-white p-6 rounded-lg border md:col-span-2">
             <h2 className="text-xl font-semibold mb-4">My Listings</h2>
+
+          {/* Expired Listings */}
+          {user?.isPremium && (
+            <div className="bg-white p-6 rounded-lg border md:col-span-2">
+              <h2 className="text-xl font-semibold mb-4">Expired Listings</h2>
+              <p className="text-gray-600 mb-4">Renew your expired listings to make them visible again.</p>
+              <button
+                onClick={() => window.location.href = "/dashboard/listings?filter=expired"}
+                className="bg-orange-600 text-white px-4 py-2 rounded"
+              >
+                View & Renew Expired
+              </button>
+            </div>
+          )}
             <Link
               href="/listings/create"
               className="inline-block bg-blue-600 text-white px-4 py-2 rounded"
