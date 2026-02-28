@@ -5,14 +5,14 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export default function ListingsContent() {
-  const {  session } = useSession();
+  const {  session, status } = useSession();
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter');
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!session) return;
+    if (status !== 'authenticated' || !session) return;
 
     const fetchListings = async () => {  
       try {  
@@ -31,7 +31,7 @@ export default function ListingsContent() {
     };  
 
     fetchListings();
-  }, [session, filter]);
+  }, [session, status, filter]);
 
   const handleRenew = async (listingId: string) => {
     try {
@@ -52,6 +52,7 @@ export default function ListingsContent() {
     }
   };
 
+  if (status === 'loading') return <div>Loading...</div>;
   if (!session) return <div>Please sign in</div>;
   if (loading) return <div>Loading...</div>;
 
