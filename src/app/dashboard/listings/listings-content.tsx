@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export default function ListingsContent() {
-  const {  session, status } = useSession();
+  const { data: session, status } = useSession();
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter');
   const [listings, setListings] = useState([]);
