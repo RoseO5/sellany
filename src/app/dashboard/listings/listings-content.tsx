@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export default function ListingsContent() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession(); // ✅ FIXED
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter');
   const [listings, setListings] = useState<any[]>([]);
@@ -43,7 +43,7 @@ export default function ListingsContent() {
       });
 
       if (res.ok) {
-        alert('✅ Listing renewed for 60 days!');
+        alert('Listing renewed for 60 days!');
         window.location.reload();
       } else {
         alert('Failed to renew listing');
@@ -72,9 +72,9 @@ export default function ListingsContent() {
               <div key={listing._id} className="bg-white p-4 rounded-lg border">
                 <div className="flex justify-between items-start">
                   <div className="flex gap-4">
-                    {listing.image ? (
+                    {listing.images && listing.images[0] ? (
                       <img
-                        src={listing.image}
+                        src={listing.images[0]}
                         alt={listing.title}
                         className="w-24 h-24 object-cover rounded"
                       />
@@ -90,9 +90,7 @@ export default function ListingsContent() {
                         ₦{listing.price?.toLocaleString()}
                       </p>
                       {listing.size && (
-                        <p className="text-sm text-gray-500">
-                          {listing.size}
-                        </p>
+                        <p className="text-sm text-gray-500">{listing.size}</p>
                       )}
                       {listing.expiresAt && (
                         <p className="text-sm text-gray-500">
@@ -107,7 +105,7 @@ export default function ListingsContent() {
                       onClick={() => handleRenew(listing._id)}
                       className="bg-green-600 text-white px-4 py-2 rounded text-sm"
                     >
-                      🔄 Renew (60 days)
+                      Renew (60 days)
                     </button>
                   )}
                 </div>
@@ -116,8 +114,11 @@ export default function ListingsContent() {
           </div>
         )}
 
-        <a href="/dashboard" className="mt-6 inline-block text-blue-600 underline">
-          ← Back to Dashboard
+        <a
+          href="/dashboard"
+          className="mt-6 inline-block text-blue-600 underline"
+        >
+          Back to Dashboard
         </a>
       </div>
     </div>
