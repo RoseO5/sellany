@@ -61,72 +61,6 @@ export default function ListingsContent() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">
-          {filter === 'expired' ? 'Expired
-
-cat > src/app/dashboard/listings/listings-content.tsx << 'EOF'
-'use client';
-
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-
-export default function ListingsContent() {
-  const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
-  const filter = searchParams.get('filter');
-  const [listings, setListings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (status !== 'authenticated' || !session) return;
-
-    const fetchListings = async () => {
-      try {
-        const url =
-          filter === 'expired'
-            ? '/api/user/listings?status=expired'
-            : '/api/user/listings';
-
-        const res = await fetch(url, { cache: 'no-store' });
-        const data = await res.json();
-        setListings(data);
-      } catch (err) {
-        console.error('Failed to fetch listings:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchListings();
-  }, [session, status, filter]);
-
-  const handleRenew = async (listingId: string) => {
-    try {
-      const res = await fetch('/api/listings/renew', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId }),
-      });
-
-      if (res.ok) {
-        alert('✅ Listing renewed for 60 days!');
-        window.location.reload();
-      } else {
-        alert('Failed to renew listing');
-      }
-    } catch (err) {
-      alert('Error renewing listing');
-    }
-  };
-
-  if (status === 'loading') return <div>Loading...</div>;
-  if (!session) return <div>Please sign in</div>;
-  if (loading) return <div>Loading...</div>;
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">
           {filter === 'expired' ? 'Expired Listings' : 'My Listings'}
         </h1>
 
@@ -162,8 +96,7 @@ export default function ListingsContent() {
                       )}
                       {listing.expiresAt && (
                         <p className="text-sm text-gray-500">
-                          Expires:{' '}
-                          {new Date(listing.expiresAt).toLocaleDateString()}
+                          Expires: {new Date(listing.expiresAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
@@ -183,10 +116,7 @@ export default function ListingsContent() {
           </div>
         )}
 
-        <a
-          href="/dashboard"
-          className="mt-6 inline-block text-blue-600 underline"
-        >
+        <a href="/dashboard" className="mt-6 inline-block text-blue-600 underline">
           ← Back to Dashboard
         </a>
       </div>
