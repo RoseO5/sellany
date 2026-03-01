@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     const listing = new Listing({
-      seller: user._id,        // Link to seller
+      user: user._id,        // Link to seller
       sellerPhone: user.phone, // Save phone with listing
       title,
       description,
