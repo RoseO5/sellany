@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
-    let query: any = { user: session.user.id };
+    let query: any = { user: new Types.ObjectId(session.user.id) };
 
     if (status === 'expired') {
       // Show expired or inactive listings
