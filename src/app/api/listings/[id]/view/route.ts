@@ -4,11 +4,13 @@ import Listing from '@/models/Listing';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToDB();
-    const { id } = params;
+    
+    // ✅ Next.js 15+: params is a Promise, so await it
+    const { id } = await params;
 
     // Increment view count atomically
     const updated = await Listing.findByIdAndUpdate(
