@@ -11,6 +11,7 @@ const UserSchema = new Schema(
     isPremium: { type: Boolean, default: false },
     premiumSince: Date,
     premiumExpiresAt: Date,
+    paymentReference: String,
 
     // ✅ Referral System
     referralCode: { type: String, unique: true, sparse: true },
