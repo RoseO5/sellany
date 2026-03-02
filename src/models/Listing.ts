@@ -9,6 +9,7 @@ export interface IListing extends Document {
   category: string;
   price: number;
   images: string[];
+  isPublished: boolean;
   imagePublicId?: string;
   condition?: 'new' | 'used';
   size?: string;
@@ -30,6 +31,7 @@ const ListingSchema: Schema = new Schema({
   category: { type: String, required: true },
   price: { type: Number, required: true },
   images: [{ type: String }],  // ✅ Array of Cloudinary URLs
+  isPublished: { type: Boolean, default: true },
   imagePublicId: { type: String },
   condition: { type: String, enum: ['new', 'used'] },
   size: { type: String },

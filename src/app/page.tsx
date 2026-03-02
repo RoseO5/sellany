@@ -9,7 +9,7 @@ import Listing from '@/models/Listing';
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
   await connectToDB();
-  const listings = await Listing.find({ isPublished: true }).sort({ createdAt: -1 });
+  const listings = await Listing.find({ $or: [{ isPublished: true }, { isPublished: { $exists: false } }] }).sort({ createdAt: -1 });
 
   return (
     <div className="min-h-screen bg-gray-50">

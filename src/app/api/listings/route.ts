@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       category,
       price: parseInt(price, 10),
       images,
+  isPublished: true,
       ...(type === 'good' && { condition, size, color }),
       ...(type === 'service' && { duration: duration ? parseInt(duration) : undefined, locationType }),
     });
