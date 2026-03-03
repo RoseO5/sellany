@@ -11,7 +11,7 @@ declare global {
 }
 
 export default function PremiumPage() {
-  const {  session, status } = useSession();
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
   const [price, setPrice] = useState(300);
   const [originalPrice] = useState(300);
