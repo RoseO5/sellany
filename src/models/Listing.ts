@@ -18,6 +18,7 @@ export interface IListing extends Document {
   locationType?: string;
   isActive: boolean;
   expiresAt?: Date;
+  viewCount: number; // ✅ added
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,7 +31,7 @@ const ListingSchema: Schema = new Schema({
   type: { type: String, enum: ['good', 'service'], required: true },
   category: { type: String, required: true },
   price: { type: Number, required: true },
-  images: [{ type: String }],  // ✅ Array of Cloudinary URLs
+  images: [{ type: String }],
   isPublished: { type: Boolean, default: true },
   imagePublicId: { type: String },
   condition: { type: String, enum: ['new', 'used'] },
@@ -40,9 +41,15 @@ const ListingSchema: Schema = new Schema({
   locationType: { type: String },
   isActive: { type: Boolean, default: true },
   expiresAt: { type: Date },
+
+  // ✅ ADD THIS
+  viewCount: {
+    type: Number,
+    default: 0
+  }
+
 }, { timestamps: true });
 
-// Index for querying active listings
 ListingSchema.index({ user: 1, isActive: 1, createdAt: -1 });
 
 export default mongoose.models.Listing || mongoose.model<IListing>('Listing', ListingSchema);
