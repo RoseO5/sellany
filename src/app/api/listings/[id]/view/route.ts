@@ -4,28 +4,36 @@ import Listing from '@/models/Listing';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectToDB();
-    
-    // ✅ Next.js 15+: params is a Promise, so await it
-    const { id } = await params;
 
-    // Increment view count atomically
+    const { id } = params;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+    }
+
     const updated = await Listing.findByIdAndUpdate(
       id,
       { $inc: { viewCount: 1 } },
-      { new: true, select: 'viewCount' }
+      { new: true }
     );
 
     if (!updated) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, viewCount: updated.viewCount || 1 });
+    return NextResponse.json({
+      success: true,
+      viewCount: updated.viewCount
+    });
   } catch (error: any) {
     console.error('View count error:', error);
-    return NextResponse.json({ error: 'Failed to increment view count' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to increment view count' },
+      { status: 500 }
+    );
   }
 }
